@@ -30,6 +30,7 @@ export default function EditMemeModal({
 
   const [titleError, setTitleError] = useState("");
   const [imageUrlError, setImageUrlError] = useState("");
+  const [likesError, setLikesError] = useState("");
 
   useEffect(() => {
     setTitle(meme.title);
@@ -37,6 +38,8 @@ export default function EditMemeModal({
     setLikes(String(meme.likes));
     setTitleError("");
     setImageUrlError("");
+  setImageUrlError("");
+  setLikesError("");
   }, [meme]);
 
   const isValidUrl = (str: string) => {
@@ -68,6 +71,13 @@ export default function EditMemeModal({
       hasError = true;
     } else {
       setImageUrlError("");
+    }
+
+    if (!/^\d+$/.test(likes) || Number(likes) < 0 || Number(likes) > 99) {
+      setLikesError("Likes must be an integer between 0 and 99.");
+      hasError = true;
+    } else {
+      setLikesError("");
     }
 
     if (hasError) return;
@@ -114,6 +124,8 @@ export default function EditMemeModal({
                 type="number"
                 value={likes}
                 onChange={(e) => setLikes(e.target.value)}
+                errorMessage={likesError}
+                isInvalid={!!likesError}
               />
             </ModalBody>
 
