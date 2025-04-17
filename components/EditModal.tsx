@@ -28,13 +28,50 @@ export default function EditMemeModal({
   const [imageUrl, setImageUrl] = useState(meme.imageUrl);
   const [likes, setLikes] = useState(String(meme.likes));
 
+  const [titleError, setTitleError] = useState("");
+  const [imageUrlError, setImageUrlError] = useState("");
+
   useEffect(() => {
     setTitle(meme.title);
     setImageUrl(meme.imageUrl);
     setLikes(String(meme.likes));
+    setTitleError("");
+    setImageUrlError("");
   }, [meme]);
 
+  const isValidUrl = (str: string) => {
+    try {
+      const url = new URL(str);
+
+      return /\.(jpg|jpeg)$/i.test(url.pathname);
+    } catch {
+      return false;
+    }
+  };
+
+  const isValidTitle = (str: string) => str.trim().length >= 3;
+
   const handleSave = () => {
+    let hasError = false;
+
+    if (!isValidTitle(title)) {
+      setTitleError("Title must be at least 3 characters long.");
+      hasError = true;
+    } else {
+      setTitleError("");
+    }
+
+    if (!isValidUrl(imageUrl)) {
+      setImageUrlError(
+        "Image URL must be a valid image ending in .jpg/.png/.jpeg/.gif",
+      );
+      hasError = true;
+    } else {
+      setImageUrlError("");
+    }
+
+    if (hasError) return;
+
     onSave({
       ...meme,
       title,
@@ -52,18 +89,25 @@ export default function EditMemeModal({
             <ModalHeader>Edit Meme</ModalHeader>
             <ModalBody className="flex flex-col gap-4">
               <Input isReadOnly label="ID" value={String(meme.id)} />
+
               <Input
                 required
+                errorMessage={titleError}
+                isInvalid={!!titleError}
                 label="Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
+
               <Input
                 required
+                errorMessage={imageUrlError}
+                isInvalid={!!imageUrlError}
                 label="Image URL"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
               />
+
               <Input
                 required
                 label="Likes"
@@ -72,6 +116,7 @@ export default function EditMemeModal({
                 onChange={(e) => setLikes(e.target.value)}
               />
             </ModalBody>
+
             <ModalFooter>
               <Button color="danger" variant="light" onPress={close}>
                 Cancel
